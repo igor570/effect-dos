@@ -8,14 +8,14 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 const app = new Hono();
 
 app.get("todo/:id", async (c) => {
-  const program = Effect.gen(function* () {
+  const handler = Effect.gen(function* () {
     const id = c.req.param("id");
     const todo = yield* getTodoById(id);
     return c.json(todo);
   });
 
   return Effect.runPromise(
-    program.pipe(
+    handler.pipe(
       Effect.provideService(DbConnection, { pg }),
       Effect.catchTags({
         MissingIdError: (e) => errorResponse(c, `Invalid ID: ${e.id}`, 400),
